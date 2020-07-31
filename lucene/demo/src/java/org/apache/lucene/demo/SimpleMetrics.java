@@ -60,7 +60,6 @@ public class SimpleMetrics {
             }
         }
         boolean keepRunning = true;
-        System.out.println(termValue);
 
         if(termValue == null) {
             userEntersWord(keepRunning);
