@@ -20,31 +20,23 @@ public class SimpleMetrics {
 
     }
 
-    public static void main(String[] args) {
-        String termValue = null;
-        for (int i = 0; i < args.length; i++) {
-            if ("-words".equals(args[i])) {
-                termValue = args[i + 1];
-                i++;
-            }
-        }
-        boolean keepRunning = true;
-
-        long docFreq = 0;
-        long termFreq = 0;
-        System.out.println(termValue);
-        Term newTerm = new Term("contents", termValue);
+    public static void printCount(Term term) {
         try {
             // Using index reader on to the index
+            long docFreq = 0;
+            long termFreq = 0;
             IndexReader indexReader = DirectoryReader.open(FSDirectory.open(Paths.get("index")));
-            termFreq = indexReader.totalTermFreq(newTerm);
-            docFreq = indexReader.docFreq(newTerm);
+            termFreq = indexReader.totalTermFreq(term);
+            docFreq = indexReader.docFreq(term);
             System.out.printf("Doc Freq:  %,d\n", docFreq);
             System.out.printf("Term Freq:  %,d\n", termFreq);
         }
         catch (IOException exception) {
             exception.printStackTrace();
         }
+    }
+
+    private static void userEntersWord(boolean keepRunning) {
         while(keepRunning) {
             Scanner in = new Scanner(System.in);
             System.out.println("Enter another word or press q to quit...");
@@ -54,19 +46,28 @@ public class SimpleMetrics {
                 keepRunning = false;
             }
             else {
-                try {
-                    // Using index reader on to the index
-                    IndexReader indexReader = DirectoryReader.open(FSDirectory.open(Paths.get("index")));
-                    termFreq = indexReader.totalTermFreq(loopedTerm);
-                    docFreq = indexReader.docFreq(loopedTerm);
-                    System.out.printf("Doc Freq:  %,d\n", docFreq);
-                    System.out.printf("Term Freq:  %,d\n", termFreq);
-                }
-                catch (IOException exception) {
-                    exception.printStackTrace();
-                }
+                printCount(loopedTerm);
             }
         }
+    }
 
+    public static void main(String[] args) {
+        String termValue = null;
+        for (int i = 0; i < args.length; i++) {
+            if ("-words".equals(args[i])) {
+                termValue = args[i + 1];
+                i++;
+            }
+        }
+        boolean keepRunning = true;
+        System.out.println(termValue);
+
+        if(termValue == null) {
+            userEntersWord(keepRunning);
+        } else {
+            Term newTerm = new Term("contents", termValue);
+            printCount(newTerm);
+            userEntersWord(keepRunning);
+        }
     }
 }
